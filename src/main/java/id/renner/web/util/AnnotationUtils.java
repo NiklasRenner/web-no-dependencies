@@ -26,6 +26,7 @@ public class AnnotationUtils {
         return hasAnnotation(classToCheck, annotationToCheck, 0);
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> T getAnnotation(Class classToCheck, Class<T> wantedAnnotation, int depth) {
         if (depth > 3) {
             return null;

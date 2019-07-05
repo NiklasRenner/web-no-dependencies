@@ -35,7 +35,7 @@ public class ApplicationContext {
     }
 
     private Object getOrCreateInstance(Class clazz) {
-        if (objectInstances.containsKey(clazz.getCanonicalName())) { // only create instances if they don't already exist and are marked with @Inject
+        if (objectInstances.containsKey(clazz.getCanonicalName())) {
             return objectInstances.get(clazz.getCanonicalName());
         }
 
@@ -77,6 +77,7 @@ public class ApplicationContext {
         return params;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getInstance(Class<T> clazz) {
         return (T) objectInstances.get(clazz.getCanonicalName());
     }
