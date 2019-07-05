@@ -21,6 +21,9 @@ public class ApplicationContext {
     }
 
     private void init() {
+        // TODO fix logging setup, this currently needs to run before the first log statement of the application, else it doesn't apply
+        System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %2$s() %5$s%6$s%n");
+
         Application applicationAnnotation = AnnotationUtils.getAnnotation(applicationClass, Application.class);
         Set<Class> packageClasses = ClassUtils.getClassesForPackage(applicationAnnotation.basePackage());
 
@@ -54,7 +57,7 @@ public class ApplicationContext {
         Object[] params = getOrCreateParams(clazz, constructor);
 
         try {
-            logger.info("trying to create instance of: " + clazz.getCanonicalName());
+            logger.info("creating instance of: " + clazz.getCanonicalName());
             return constructor.newInstance(params);
         } catch (ReflectiveOperationException ex) {
             throw new RuntimeException("error creating instance of class + " + clazz.getCanonicalName() + ": " + ex.getMessage(), ex);

@@ -2,53 +2,71 @@ package id.renner.web.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarEntry;
 
 public class ClassUtils {
 
     public static Set<Class> getClassesForPackage(String packageName) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Set<Class> classes = new HashSet<>();
+        String packagePath = packageName.replace('.', '/');
+
+        try {
+            Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(packagePath);
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+                URLConnection connection = url.openConnection();
+
+                if (connection instanceof JarURLConnection) {
+                    classes.addAll(checkJarFile((JarURLConnection) connection, packageName));
+                } else {
+                    classes.addAll(checkDirectory(url.getPath(), packageName));
+                }
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            throw new RuntimeException("couldn't load classes in package " + packageName + ": " + ex.getMessage(), ex);
+        }
+
+        return classes;
+    }
+
+    private static Set<Class> checkDirectory(String path, String packageName) throws ClassNotFoundException {
         Set<Class> classes = new HashSet<>();
 
-        String packagePath = packageName.replace(".", "/");
-        Enumeration<URL> packages;
-        try {
-            packages = classLoader.getResources(packagePath);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+        File directory = new File(URLDecoder.decode(path, StandardCharsets.UTF_8));
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
 
-        ArrayList<File> directories = new ArrayList<>();
-        while (packages.hasMoreElements()) {
-            directories.add(new File(URLDecoder.decode(packages.nextElement().getPath(), StandardCharsets.UTF_8)));
-        }
-
-        while (!directories.isEmpty()) {
-            File directory = directories.remove(0);
-
-            if (directory.exists()) {
-                File[] files = directory.listFiles();
-                if (files == null) {
-                    continue;
-                }
-
+            if (files != null) {
                 for (File file : files) {
-                    if (file.getName().endsWith(".class") && (!file.getName().contains("$"))) { // only interested in top level classes
-                        try {
-                            classes.add(Class.forName(getQualifiedClassNameFromFilePath(file.getPath(), packageName)));
-                        } catch (ClassNotFoundException ex) {
-                            throw new RuntimeException(ex);
-                        }
+                    if (file.getName().endsWith(".class")) {
+                        classes.add(Class.forName(getQualifiedClassNameFromFilePath(file.getPath(), packageName)));
                     } else if (file.isDirectory()) {
-                        directories.add(file);
+                        classes.addAll(checkDirectory(file.getPath(), packageName));
                     }
                 }
+            }
+        }
+
+        return classes;
+    }
+
+    private static Set<Class> checkJarFile(JarURLConnection connection, String packageName) throws ClassNotFoundException, IOException {
+        Set<Class> classes = new HashSet<>();
+
+        Enumeration<JarEntry> entries = connection.getJarFile().entries();
+        while (entries.hasMoreElements()) {
+            String name = entries.nextElement().getName();
+
+            if (name.endsWith(".class")) {
+                classes.add(Class.forName(getQualifiedClassNameFromFilePath(name, packageName)));
             }
         }
 
