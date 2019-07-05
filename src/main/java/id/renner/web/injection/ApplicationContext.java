@@ -34,7 +34,7 @@ public class ApplicationContext {
     }
 
     private boolean isInjectable(Class clazz) {
-        return !clazz.isAnnotation() && AnnotationUtils.hasAnnotation(clazz, Inject.class);
+        return AnnotationUtils.hasAnnotation(clazz, Inject.class) && !clazz.isAnnotation();
     }
 
     private Object getOrCreateInstance(Class clazz) {
