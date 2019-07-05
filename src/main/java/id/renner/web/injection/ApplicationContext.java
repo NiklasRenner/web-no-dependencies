@@ -27,20 +27,22 @@ public class ApplicationContext {
     }
 
     private void init() {
-        try {
-            Application applicationAnnotation = (Application) applicationClass.getAnnotation(Application.class);
-            getClassesForPackage(applicationAnnotation.basePackage()).forEach(this::checkClassForInjectAndHandle);
-        } catch (Exception ex) {
-            throw new RuntimeException("init failed: " + ex.getMessage());
-        }
+        Application applicationAnnotation = (Application) applicationClass.getAnnotation(Application.class);
+        getClassesForPackage(applicationAnnotation.basePackage()).forEach(this::checkClassForInjectAndHandle);
     }
 
-    private Set<Class> getClassesForPackage(String packageName) throws IOException {
+    private Set<Class> getClassesForPackage(String packageName) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Set<Class> classes = new HashSet<>();
 
         String packagePath = packageName.replace(".", "/");
-        Enumeration<URL> packages = classLoader.getResources(packagePath);
+        Enumeration<URL> packages;
+        try {
+            packages = classLoader.getResources(packagePath);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
         ArrayList<File> directories = new ArrayList<>();
         while (packages.hasMoreElements()) {
             directories.add(new File(URLDecoder.decode(packages.nextElement().getPath(), StandardCharsets.UTF_8)));
@@ -72,14 +74,6 @@ public class ApplicationContext {
         return classes;
     }
 
-    private String getQualifiedClassNameFromFilePath(String filePath, String packageName) {
-        String qualifiedClassName = filePath.replaceAll("[\\\\/]", "."); // convert path dividers to dots
-
-        return qualifiedClassName
-                .substring(0, qualifiedClassName.length() - ".class".length()) // remove .class postfix
-                .substring(qualifiedClassName.indexOf(packageName)); // remove path elements before package part
-    }
-
     private Object checkClassForInjectAndHandle(Class clazz) {
         if (clazz.getAnnotation(Inject.class) == null) { // only do injection where classes are annotated with @Inject
             return null;
@@ -95,22 +89,30 @@ public class ApplicationContext {
         return instance;
     }
 
+    private String getQualifiedClassNameFromFilePath(String filePath, String packageName) {
+        String qualifiedClassName = filePath.replaceAll("[\\\\/]", "."); // convert path dividers to dots
+
+        return qualifiedClassName
+                .substring(0, qualifiedClassName.length() - ".class".length()) // remove .class postfix
+                .substring(qualifiedClassName.indexOf(packageName)); // remove path elements before package part
+    }
+
     private Object createInstance(Class clazz) {
         Constructor[] constructors = clazz.getConstructors();
         if (constructors.length > 1) {
-            throw new RuntimeException("can't injection class " + clazz.getCanonicalName() + ", multiple injectable constructors present");
+            throw new InjectionException("can't injection class " + clazz.getCanonicalName() + ", multiple injectable constructors present");
         }
 
         Constructor constructor = constructors[0];
         Object[] params = Arrays
                 .stream(constructor.getParameterTypes())
                 .map(constructorParameterClass -> {
-                    Object instance = checkClassForInjectAndHandle(constructorParameterClass);
+                    Object instance = checkClassForInjectAndHandle(constructorParameterClass); // recursion to avoid having to checkClassForInjectAndHandle everything in the right order
                     if (instance == null) {
-                        throw new RuntimeException("found class " + constructorParameterClass.getCanonicalName() + " not marked with @Inject, while trying to create instance of " + clazz.getCanonicalName());
+                        throw new InjectionException("found class " + constructorParameterClass.getCanonicalName() + " not marked with @Inject, while trying to create instance of " + clazz.getCanonicalName());
                     }
                     return instance;
-                }).toArray(); // recursion to avoid having to checkClassForInjectAndHandle everything in the right order
+                }).toArray();
 
         try {
             logger.info("trying to create instance of: " + clazz.getCanonicalName());
