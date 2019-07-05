@@ -1,6 +1,5 @@
 package id.renner.web.injection.sunshine;
 
-import id.renner.web.WebApplication;
 import id.renner.web.injection.Application;
 import id.renner.web.injection.ApplicationContext;
 import org.junit.jupiter.api.Test;

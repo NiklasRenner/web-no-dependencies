@@ -100,7 +100,7 @@ public class ApplicationContext {
     private Object createInstance(Class clazz) {
         Constructor[] constructors = clazz.getConstructors();
         if (constructors.length > 1) {
-            throw new InjectionException("can't injection class " + clazz.getCanonicalName() + ", multiple injectable constructors present");
+            throw new InjectionException("can't inject class " + clazz.getCanonicalName() + ", multiple injectable constructors present");
         }
 
         Constructor constructor = constructors[0];
