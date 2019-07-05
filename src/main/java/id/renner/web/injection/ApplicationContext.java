@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +27,9 @@ public class ApplicationContext {
 
     private void init() {
         Application applicationAnnotation = (Application) applicationClass.getAnnotation(Application.class);
-        getClassesForPackage(applicationAnnotation.basePackage()).forEach(this::checkClassForInjectAndHandle);
+        getClassesForPackage(applicationAnnotation.basePackage()).stream()
+                .filter(this::isMarkedToBeInjected)
+                .forEach(this::getOrCreateInstance);
     }
 
     private Set<Class> getClassesForPackage(String packageName) {
@@ -74,27 +75,26 @@ public class ApplicationContext {
         return classes;
     }
 
-    private Object checkClassForInjectAndHandle(Class clazz) {
-        if (clazz.getAnnotation(Inject.class) == null) { // only do injection where classes are annotated with @Inject
-            return null;
-        }
-
-        if (objectInstances.containsKey(clazz.getCanonicalName())) { // don't create if instance already exists
-            return objectInstances.get(clazz.getCanonicalName());
-        }
-
-        Object instance = createInstance(clazz);
-        objectInstances.put(clazz.getCanonicalName(), instance);
-
-        return instance;
-    }
-
     private String getQualifiedClassNameFromFilePath(String filePath, String packageName) {
         String qualifiedClassName = filePath.replaceAll("[\\\\/]", "."); // convert path dividers to dots
 
         return qualifiedClassName
                 .substring(0, qualifiedClassName.length() - ".class".length()) // remove .class postfix
                 .substring(qualifiedClassName.indexOf(packageName)); // remove path elements before package part
+    }
+
+    private boolean isMarkedToBeInjected(Class clazz) {
+        return clazz.getAnnotation(Inject.class) != null;
+    }
+
+    private Object getOrCreateInstance(Class clazz) {
+        if (objectInstances.containsKey(clazz.getCanonicalName())) { // only create instances if they don't already exist and are marked with @Inject
+            return objectInstances.get(clazz.getCanonicalName());
+        }
+
+        Object instance = createInstance(clazz);
+        objectInstances.put(clazz.getCanonicalName(), instance);
+        return instance;
     }
 
     private Object createInstance(Class clazz) {
@@ -104,15 +104,7 @@ public class ApplicationContext {
         }
 
         Constructor constructor = constructors[0];
-        Object[] params = Arrays
-                .stream(constructor.getParameterTypes())
-                .map(constructorParameterClass -> {
-                    Object instance = checkClassForInjectAndHandle(constructorParameterClass); // recursion to avoid having to checkClassForInjectAndHandle everything in the right order
-                    if (instance == null) {
-                        throw new InjectionException("found class " + constructorParameterClass.getCanonicalName() + " not marked with @Inject, while trying to create instance of " + clazz.getCanonicalName());
-                    }
-                    return instance;
-                }).toArray();
+        Object[] params = getOrCreateParams(clazz, constructor);
 
         try {
             logger.info("trying to create instance of: " + clazz.getCanonicalName());
@@ -120,6 +112,21 @@ public class ApplicationContext {
         } catch (ReflectiveOperationException ex) {
             throw new RuntimeException("error creating instance of class + " + clazz.getCanonicalName() + ": " + ex.getMessage(), ex);
         }
+    }
+
+    private Object[] getOrCreateParams(Class clazz, Constructor constructor) {
+        Class[] paramTypes = constructor.getParameterTypes();
+        Object[] params = new Object[paramTypes.length];
+        for (int i = 0; i < paramTypes.length; i++) {
+            Class paramType = paramTypes[i];
+            if (!isMarkedToBeInjected(paramType)) {
+                throw new InjectionException("found class " + paramType.getCanonicalName() + " not marked with @Inject, while trying to create instance of " + clazz.getCanonicalName());
+            }
+            Object instance = getOrCreateInstance(paramType); // recursion to avoid having to checkClassForInjectAndHandle everything in the right order
+
+            params[i] = instance;
+        }
+        return params;
     }
 
     public <T> T getInstance(Class<T> clazz) {
