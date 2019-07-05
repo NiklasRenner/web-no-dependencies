@@ -1,15 +1,10 @@
 package id.renner.web.injection;
 
-import java.io.File;
-import java.io.IOException;
+import id.renner.web.util.AnnotationUtils;
+import id.renner.web.util.ClassUtils;
+
 import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -26,65 +21,17 @@ public class ApplicationContext {
     }
 
     private void init() {
-        Application applicationAnnotation = (Application) applicationClass.getAnnotation(Application.class);
-        getClassesForPackage(applicationAnnotation.basePackage()).stream()
-                .filter(this::isMarkedToBeInjected)
+        Application applicationAnnotation = AnnotationUtils.getAnnotation(applicationClass, Application.class);
+        Set<Class> packageClasses = ClassUtils.getClassesForPackage(applicationAnnotation.basePackage());
+
+        // dependency injection setup
+        packageClasses.stream()
+                .filter(this::isInjectable)
                 .forEach(this::getOrCreateInstance);
     }
 
-    private Set<Class> getClassesForPackage(String packageName) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Set<Class> classes = new HashSet<>();
-
-        String packagePath = packageName.replace(".", "/");
-        Enumeration<URL> packages;
-        try {
-            packages = classLoader.getResources(packagePath);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-        ArrayList<File> directories = new ArrayList<>();
-        while (packages.hasMoreElements()) {
-            directories.add(new File(URLDecoder.decode(packages.nextElement().getPath(), StandardCharsets.UTF_8)));
-        }
-
-        while (!directories.isEmpty()) {
-            File directory = directories.remove(0);
-
-            if (directory.exists()) {
-                File[] files = directory.listFiles();
-                if (files == null) {
-                    continue;
-                }
-
-                for (File file : files) {
-                    if (file.getName().endsWith(".class") && (!file.getName().contains("$"))) { // only interested in top level classes
-                        try {
-                            classes.add(Class.forName(getQualifiedClassNameFromFilePath(file.getPath(), packageName)));
-                        } catch (ClassNotFoundException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    } else if (file.isDirectory()) {
-                        directories.add(file);
-                    }
-                }
-            }
-        }
-
-        return classes;
-    }
-
-    private String getQualifiedClassNameFromFilePath(String filePath, String packageName) {
-        String qualifiedClassName = filePath.replaceAll("[\\\\/]", "."); // convert path dividers to dots
-
-        return qualifiedClassName
-                .substring(0, qualifiedClassName.length() - ".class".length()) // remove .class postfix
-                .substring(qualifiedClassName.indexOf(packageName)); // remove path elements before package part
-    }
-
-    private boolean isMarkedToBeInjected(Class clazz) {
-        return clazz.getAnnotation(Inject.class) != null;
+    private boolean isInjectable(Class clazz) {
+        return !clazz.isAnnotation() && AnnotationUtils.hasAnnotation(clazz, Inject.class);
     }
 
     private Object getOrCreateInstance(Class clazz) {
@@ -119,13 +66,14 @@ public class ApplicationContext {
         Object[] params = new Object[paramTypes.length];
         for (int i = 0; i < paramTypes.length; i++) {
             Class paramType = paramTypes[i];
-            if (!isMarkedToBeInjected(paramType)) {
+            if (!isInjectable(paramType)) {
                 throw new InjectionException("found class " + paramType.getCanonicalName() + " not marked with @Inject, while trying to create instance of " + clazz.getCanonicalName());
             }
-            Object instance = getOrCreateInstance(paramType); // recursion to avoid having to checkClassForInjectAndHandle everything in the right order
 
+            Object instance = getOrCreateInstance(paramType); // recursion to avoid having to create everything in the right order
             params[i] = instance;
         }
+
         return params;
     }
 

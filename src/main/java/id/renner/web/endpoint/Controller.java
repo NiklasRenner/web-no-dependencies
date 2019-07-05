@@ -1,11 +1,15 @@
-package id.renner.web.injection;
+package id.renner.web.endpoint;
+
+import id.renner.web.injection.Inject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Inject
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Inject {
+public @interface Controller {
+    String path();
 }
