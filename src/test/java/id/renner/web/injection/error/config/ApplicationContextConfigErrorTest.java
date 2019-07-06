@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Application(basePackage = "id.renner.web.injection.error.config")
+@Application
 class ApplicationContextConfigErrorTest {
 
     @Test

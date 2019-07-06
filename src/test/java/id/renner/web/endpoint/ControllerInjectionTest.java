@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Application(basePackage = "id.renner.web.endpoint")
+@Application
 class ControllerInjectionTest {
 
     @Test

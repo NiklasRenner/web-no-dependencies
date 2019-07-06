@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@Application(basePackage = "id.renner.web.injection.sunshine")
+@Application
 class ApplicationContextSunshineTest {
 
     @Test
