@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 public class AnnotationUtils {
 
+    // TODO cleanup class to remove some duplication
     // TODO maybe exclude annotations like @Documented from search, as they are recursed through until max depth is hit for no reason
     // recursion done due to lack of inheritance for annotations. Instead annotations need to be annotated with the annotation they wanna inherit from, then this function will try to find them
     // stop recursion when 3 level deep, since annotations like @Documented annotate themselves, leading to stack overflow if not stopped
@@ -52,7 +53,7 @@ public class AnnotationUtils {
         return getAnnotation(classToCheck, wantedAnnotation, 0);
     }
 
-    private static <T> T getAnnotation(Method methodToCheck, Class<T> wantedAnnotation, int depth) { //TODO cleanup duplication
+    private static <T> T getAnnotation(Method methodToCheck, Class<T> wantedAnnotation, int depth) {
         if (depth > 3) {
             return null;
         }
