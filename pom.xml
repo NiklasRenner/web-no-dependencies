@@ -35,7 +35,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>id.renner.web.WebApplication</mainClass>
+                                    <mainClass>id.renner.web.application.WebApplication</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
