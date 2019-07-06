@@ -43,11 +43,9 @@ public class ControllerHandler {
     }
 
     private Stream<Map.Entry<String, InstanceMethod>> createRoutes(Object controller) {
-        // get reflection data
         Class controllerClass = controller.getClass();
         Controller controllerAnnotation = AnnotationUtils.getAnnotation(controllerClass, Controller.class);
 
-        // setup route bindings
         return Arrays.stream(controllerClass.getMethods())
                 .filter((Method method) -> AnnotationUtils.hasAnnotation(method, Endpoint.class))
                 .map((Method method) -> createBinding(controller, method, controllerAnnotation.path()));
