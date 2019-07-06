@@ -1,8 +1,8 @@
 # web-no-dependencies
-Attempt to create a web application with no dependencies, except ones for test.
-Also no googling except when stuck for a long time and other stuff tried.
+This project is an attempt to create a Spring Boot-like web application, but without any dependencies.
+Also attempting to not Google too much.
 
-## googled
+## googled problems
 
 ##### How to get all classes in a given package
 Involves looking through classpath/jar and then building qualified class names that can be understood by a classloader. See `ClassUtils`.
@@ -12,13 +12,13 @@ Annotations don't support inheritance, so created `AnnotationUtils` that looks a
 to create some kind of inheritance. Works as long as `AnnotationUtils` is used for everything related to annotations.
 
 ##### How to configure java.util.Logger
-I wanted to change logging format, currently done with system property overrride.
+I wanted to change logging format, currently done with system property overwrite.
 
 #####  How to set default values for annotation
 ex. `String packageName() default "foo.bar";`.
 
 ##### How to use streams for maps
-ex. `entryStream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));`. See ControllerHandler for example.
+ex. `entryStream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));`. See `ControllerHandler` for example.
 
 ##### How to close HttpServer properly
 Had problem in test where only first test succeeded, cause next text would say "Address already in use", when creating `ApplicationCore`.
