@@ -2,7 +2,7 @@ package id.renner.web.library.controller;
 
 import id.renner.web.library.application.ApplicationCore;
 import id.renner.web.library.injection.Application;
-import id.renner.web.util.TestApplicationContext;
+import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class ControllerTest {
 
     @BeforeEach
     void before() {
-        applicationCore = TestApplicationContext.createExecutionCore(ControllerTest.class);
+        applicationCore = TestUtil.createExecutionCore(ControllerTest.class);
     }
 
     @AfterEach

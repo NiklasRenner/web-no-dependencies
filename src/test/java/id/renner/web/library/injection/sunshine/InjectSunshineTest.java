@@ -3,7 +3,7 @@ package id.renner.web.library.injection.sunshine;
 import id.renner.web.library.application.ApplicationCore;
 import id.renner.web.library.application.ContextHandler;
 import id.renner.web.library.injection.Application;
-import id.renner.web.util.TestApplicationContext;
+import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +15,7 @@ class InjectSunshineTest {
 
     @Test
     void testDependencyInjectionSunshine() {
-        ApplicationCore applicationCore = TestApplicationContext.createExecutionCore(InjectSunshineTest.class);
+        ApplicationCore applicationCore = TestUtil.createExecutionCore(InjectSunshineTest.class);
         ContextHandler contextHandler = applicationCore.getContextHandler();
 
         assertNull(contextHandler.getInstance(ApplicationCore.class));
