@@ -1,5 +1,10 @@
-package id.renner.web.injection;
+package id.renner.web.application;
 
+import id.renner.web.endpoint.Controller;
+import id.renner.web.http.Server;
+import id.renner.web.injection.Application;
+import id.renner.web.injection.Inject;
+import id.renner.web.injection.InjectionException;
 import id.renner.web.util.AnnotationUtils;
 import id.renner.web.util.ClassUtils;
 
@@ -14,9 +19,11 @@ public class ApplicationContext {
 
     private final Map<String, Object> objectInstances = new HashMap<>();
     private final Class applicationClass;
+    private final Server server;
 
     public ApplicationContext(Class applicationClass) {
         this.applicationClass = applicationClass;
+        this.server = new Server();
         init();
     }
 
@@ -33,10 +40,23 @@ public class ApplicationContext {
         packageClasses.stream()
                 .filter(this::isInjectable)
                 .forEach(this::getOrCreateInstance);
+
+        // setup controllers
+        objectInstances.values().stream()
+                .filter(this::isController)
+                .forEach(server::createRoutes);
+
+        if (server.hasEndpoints()) {
+            server.start();
+        }
     }
 
     private boolean isInjectable(Class clazz) {
         return AnnotationUtils.hasAnnotation(clazz, Inject.class) && !clazz.isAnnotation();
+    }
+
+    private boolean isController(Object instance) {
+        return AnnotationUtils.hasAnnotation(instance.getClass(), Controller.class);
     }
 
     private Object getOrCreateInstance(Class clazz) {

@@ -1,6 +1,7 @@
 package id.renner.web.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 public class AnnotationUtils {
 
@@ -49,5 +50,48 @@ public class AnnotationUtils {
 
     public static <T> T getAnnotation(Class classToCheck, Class<T> wantedAnnotation) {
         return getAnnotation(classToCheck, wantedAnnotation, 0);
+    }
+
+    private static <T> T getAnnotation(Method methodToCheck, Class<T> wantedAnnotation, int depth) { //TODO cleanup duplication
+        if (depth > 3) {
+            return null;
+        }
+
+        Annotation[] classAnnotations = methodToCheck.getAnnotations();
+        for (Annotation classAnnotation : classAnnotations) {
+            if (wantedAnnotation.isInstance(classAnnotation)) {
+                return (T) classAnnotation;
+            } else {
+                T foundAnnotation = getAnnotation(classAnnotation.annotationType(), wantedAnnotation, depth + 1);
+                if (foundAnnotation != null) {
+                    return foundAnnotation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static <T> T getAnnotation(Method methodToCheck, Class<T> wantedAnnotation) {
+        return getAnnotation(methodToCheck, wantedAnnotation, 0);
+    }
+
+    private static boolean hasAnnotation(Method methodToCheck, Class wantedAnnotation, int depth) {
+        if (depth > 3) {
+            return false;
+        }
+
+        Annotation[] classAnnotations = methodToCheck.getAnnotations();
+        for (Annotation classAnnotation : classAnnotations) {
+            if (wantedAnnotation.isInstance(classAnnotation) || hasAnnotation(classAnnotation.annotationType(), wantedAnnotation, depth + 1)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean hasAnnotation(Method methodToCheck, Class annotationToCheck) {
+        return hasAnnotation(methodToCheck, annotationToCheck, 0);
     }
 }
