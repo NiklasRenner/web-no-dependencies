@@ -7,12 +7,9 @@ import id.renner.web.service.InfoService;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
-import java.util.logging.Logger;
 
 @Controller(path = "/test")
 public class TestController {
-    private static final Logger logger = Logger.getLogger(TestController.class.getSimpleName());
-
     private final InfoService infoService;
 
     public TestController(InfoService infoService) {

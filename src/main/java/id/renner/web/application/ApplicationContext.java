@@ -21,10 +21,14 @@ public class ApplicationContext {
     private final Class applicationClass;
     private final Server server;
 
-    public ApplicationContext(Class applicationClass) {
+    public ApplicationContext(Class applicationClass, int port) {
         this.applicationClass = applicationClass;
-        this.server = new Server();
+        this.server = new Server(port);
         init();
+    }
+
+    public ApplicationContext(Class applicationClass) {
+        this(applicationClass, 8080);
     }
 
     private void init() {
@@ -105,5 +109,9 @@ public class ApplicationContext {
     @SuppressWarnings("unchecked")
     public <T> T getInstance(Class<T> clazz) {
         return (T) objectInstances.get(clazz.getCanonicalName());
+    }
+
+    public void close() {
+        server.close();
     }
 }

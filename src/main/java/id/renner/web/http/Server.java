@@ -23,10 +23,10 @@ public class Server {
     private final HttpServer httpServer;
     private final ExecutorService executorService;
 
-    public Server() {
+    public Server(int port) {
         try {
             this.router = new HashMap<>();
-            this.httpServer = HttpServer.create(new InetSocketAddress(8080), 10);
+            this.httpServer = HttpServer.create(new InetSocketAddress(port), 10);
 
             this.executorService = Executors.newFixedThreadPool(10);
             this.httpServer.setExecutor(executorService);
