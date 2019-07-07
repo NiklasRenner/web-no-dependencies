@@ -21,12 +21,10 @@ public class ContextHandler {
         logger.info("creating contextHandler");
         this.injectedObjectContext = new HashMap<>();
 
-        // scan application packages
-        Application applicationAnnotation = AnnotationUtils.getAnnotation(applicationClass, Application.class);
-        String basePackage = applicationAnnotation.basePackage().isBlank() ? applicationClass.getPackageName() : applicationAnnotation.basePackage();
-        Set<Class> packageClasses = ClassUtils.getClassesForPackage(basePackage);
+        final Application applicationAnnotation = AnnotationUtils.getAnnotation(applicationClass, Application.class);
+        final String basePackage = applicationAnnotation.basePackage().isBlank() ? applicationClass.getPackageName() : applicationAnnotation.basePackage();
+        final Set<Class> packageClasses = ClassUtils.getClassesForPackage(basePackage);
 
-        // dependency injection setup
         packageClasses.stream()
                 .filter(this::isInjectable)
                 .forEach(this::getOrInjectInstance);

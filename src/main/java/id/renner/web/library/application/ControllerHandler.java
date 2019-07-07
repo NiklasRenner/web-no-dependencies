@@ -25,7 +25,7 @@ public class ControllerHandler {
         logger.info("starting controllerHandler");
         this.port = port;
 
-        Map<String, InstanceMethod> routes = contextHandler
+        final Map<String, InstanceMethod> routes = contextHandler
                 .getInjectedObjectContext().values().stream()
                 .filter(this::isController)
                 .map(this::createRoutes)
@@ -34,7 +34,7 @@ public class ControllerHandler {
 
         if (!routes.isEmpty()) {
             this.customHttpServer = new CustomHttpServer(routes, port);
-            customHttpServer.start();
+            this.customHttpServer.start();
         }
     }
 
