@@ -47,6 +47,6 @@ class ControllerTest {
         HttpResponse httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(httpResponse.statusCode(), 200);
-        assertEquals(httpResponse.body().toString(), "baz");
+        assertEquals(httpResponse.body().toString(), "foo bar baz baz");
     }
 }
