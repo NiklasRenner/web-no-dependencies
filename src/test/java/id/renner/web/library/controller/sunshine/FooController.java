@@ -1,6 +1,8 @@
-package id.renner.web.library.controller;
+package id.renner.web.library.controller.sunshine;
 
 import com.sun.net.httpserver.HttpExchange;
+import id.renner.web.library.controller.Controller;
+import id.renner.web.library.controller.Endpoint;
 
 import java.io.IOException;
 import java.io.OutputStream;

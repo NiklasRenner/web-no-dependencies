@@ -1,4 +1,4 @@
-package id.renner.web.library.controller;
+package id.renner.web.library.controller.sunshine;
 
 import id.renner.web.library.injection.Inject;
 

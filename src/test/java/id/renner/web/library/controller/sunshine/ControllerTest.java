@@ -1,4 +1,4 @@
-package id.renner.web.library.controller;
+package id.renner.web.library.controller.sunshine;
 
 import id.renner.web.library.application.ApplicationCore;
 import id.renner.web.library.injection.Application;
@@ -36,7 +36,7 @@ class ControllerTest {
     }
 
     @Test
-    void testControllerIsCallable() throws IOException, InterruptedException {
+    void testControllerSunshine() throws IOException, InterruptedException {
         int port = applicationCore.getControllerHandler().getPort();
 
         HttpClient client = HttpClient.newHttpClient();
