@@ -22,7 +22,7 @@ class ControllerTest {
 
     @BeforeEach
     void before() {
-        applicationCore = TestUtil.createExecutionCore(ControllerTest.class);
+        applicationCore = TestUtil.createApplicationCore(ControllerTest.class);
     }
 
     @AfterEach

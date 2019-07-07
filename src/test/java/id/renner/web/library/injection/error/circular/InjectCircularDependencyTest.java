@@ -11,6 +11,6 @@ public class InjectCircularDependencyTest {
 
     @Test
     void testInjectionFailsWithCircularDependencies() {
-        assertThrows(StackOverflowError.class, () -> TestUtil.createExecutionCore(InjectCircularDependencyTest.class));
+        assertThrows(StackOverflowError.class, () -> TestUtil.createApplicationCore(InjectCircularDependencyTest.class));
     }
 }

@@ -12,6 +12,6 @@ class InjectInvalidConfigurationTest {
 
     @Test
     void testDependencyInjectionFails() { // all constructor parameters for classes marked with @Inject, also need to be marked with @Inject themselves
-        assertThrows(InjectionException.class, () -> TestUtil.createExecutionCore(InjectInvalidConfigurationTest.class));
+        assertThrows(InjectionException.class, () -> TestUtil.createApplicationCore(InjectInvalidConfigurationTest.class));
     }
 }

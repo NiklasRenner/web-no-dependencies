@@ -15,7 +15,7 @@ class InjectSunshineTest {
 
     @Test
     void testDependencyInjectionSunshine() {
-        ApplicationCore applicationCore = TestUtil.createExecutionCore(InjectSunshineTest.class);
+        ApplicationCore applicationCore = TestUtil.createApplicationCore(InjectSunshineTest.class);
         ContextHandler contextHandler = applicationCore.getContextHandler();
 
         assertNull(contextHandler.getInstance(ApplicationCore.class));

@@ -12,6 +12,6 @@ class InjectAmbiguousConstructorTest {
 
     @Test
     void testDependencyInjectionFails() { // multiple constructors in class marked with @Inject is not supported
-        assertThrows(InjectionException.class, () -> TestUtil.createExecutionCore(InjectAmbiguousConstructorTest.class));
+        assertThrows(InjectionException.class, () -> TestUtil.createApplicationCore(InjectAmbiguousConstructorTest.class));
     }
 }

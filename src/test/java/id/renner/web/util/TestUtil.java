@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TestUtil {
     private static AtomicInteger counter = new AtomicInteger(10000);
 
-    public static ApplicationCore createExecutionCore(Class clazz) {
+    public static ApplicationCore createApplicationCore(Class clazz) {
         return new ApplicationCore(clazz, counter.incrementAndGet());
     }
 }
