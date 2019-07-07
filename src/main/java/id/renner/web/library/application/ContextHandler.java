@@ -39,9 +39,13 @@ public class ContextHandler {
             return injectedObjectContext.get(clazz.getCanonicalName());
         }
 
-        Object instance = injectInstance(clazz);
-        injectedObjectContext.put(clazz.getCanonicalName(), instance);
-        return instance;
+        try {
+            Object instance = injectInstance(clazz);
+            injectedObjectContext.put(clazz.getCanonicalName(), instance);
+            return instance;
+        } catch (StackOverflowError ex) {
+            throw new InjectionException("circular dependencies caused stack-overflow");
+        }
     }
 
     private Object injectInstance(Class clazz) {

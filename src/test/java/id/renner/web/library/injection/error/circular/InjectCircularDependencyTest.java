@@ -1,6 +1,7 @@
 package id.renner.web.library.injection.error.circular;
 
 import id.renner.web.library.injection.Application;
+import id.renner.web.library.injection.InjectionException;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,6 @@ public class InjectCircularDependencyTest {
 
     @Test
     void testInjectionFailsWithCircularDependencies() {
-        assertThrows(StackOverflowError.class, () -> TestUtil.createApplicationCore(InjectCircularDependencyTest.class));
+        assertThrows(InjectionException.class, () -> TestUtil.createApplicationCore(InjectCircularDependencyTest.class));
     }
 }
