@@ -23,7 +23,5 @@ class InjectSunshineTest {
         assertNotNull(contextHandler.getInstance(Bar.class));
         assertEquals(contextHandler.getInstance(Foo.class), contextHandler.getInstance(Foo.class));
         assertEquals(contextHandler.getInstance(Bar.class), contextHandler.getInstance(Foo.class).getBar());
-
-        applicationCore.stop();
     }
 }

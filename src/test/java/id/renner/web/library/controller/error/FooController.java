@@ -3,7 +3,7 @@ package id.renner.web.library.controller.error;
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
 import id.renner.web.library.controller.sunshine.Foo;
-import id.renner.web.library.http.CustomHttpContext;
+import id.renner.web.library.http.CustomHttpRequest;
 
 @Controller(path = "/foo")
 public class FooController {
@@ -14,10 +14,10 @@ public class FooController {
     }
 
     @Endpoint(path = "/bar/{id}")
-    public void bar(CustomHttpContext httpContext) {
+    public void bar(CustomHttpRequest httpContext) {
     }
 
     @Endpoint(path = "/bar/baz")
-    public void baz(CustomHttpContext httpContext){
+    public void baz(CustomHttpRequest httpContext){
     }
 }

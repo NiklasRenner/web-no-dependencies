@@ -1,7 +1,6 @@
 package id.renner.web.library.routing;
 
-import com.sun.net.httpserver.HttpExchange;
-import id.renner.web.library.http.CustomHttpContext;
+import id.renner.web.library.http.CustomHttpRequest;
 
 public class RequestRouter {
     private final RoutingNode rootNode;
@@ -11,12 +10,13 @@ public class RequestRouter {
     }
 
     public void addRoute(String path, RequestHandler handler) {
-        rootNode.insert(new RoutingKey(path), handler);
+        RoutingKey routingKey = new RoutingKey(path);
+        rootNode.insert(routingKey, handler);
     }
 
-    public void handle(HttpExchange httpExchange) {
-        String path = httpExchange.getRequestURI().getPath();
-        rootNode.handle(new RoutingKey(path), new CustomHttpContext(httpExchange));
+    public RequestHandler get(CustomHttpRequest httpContext) {
+        RoutingKey routingKey = new RoutingKey(httpContext.getPath());
+        return rootNode.get(routingKey, httpContext);
     }
 
     public boolean isEmpty() {

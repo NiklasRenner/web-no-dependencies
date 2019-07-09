@@ -1,14 +1,10 @@
 package id.renner.web.library.routing;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.stream.Collectors;
+import java.util.StringTokenizer;
 
-public class RoutingKey extends LinkedList<String> {
+class RoutingKey extends StringTokenizer {
 
-    public RoutingKey(String key) {
-        super(Arrays.stream(key.split("/"))
-                .skip(1)
-                .collect(Collectors.toList()));
+    RoutingKey(String key) {
+        super(key, "/");
     }
 }

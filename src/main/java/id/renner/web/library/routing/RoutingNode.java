@@ -1,50 +1,48 @@
 package id.renner.web.library.routing;
 
-import id.renner.web.library.http.CustomHttpContext;
+import id.renner.web.library.http.CustomHttpRequest;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 
-public class RoutingNode extends HashMap<String, RoutingNode> {
+class RoutingNode extends HashMap<String, RoutingNode> {
     private RequestHandler requestHandler;
     private boolean endNode;
     private String pathKey;
     private boolean wildcardNode;
 
-    public RoutingNode() {
+    RoutingNode() {
         this.requestHandler = null;
         this.endNode = false;
         this.pathKey = null;
         this.wildcardNode = false;
     }
 
-    public void handle(RoutingKey routingKey, CustomHttpContext httpContext) {
-        if (routingKey.isEmpty()) {
-            this.requestHandler.invoke(httpContext);
+    RequestHandler get(RoutingKey routingKey, CustomHttpRequest httpContext) {
+        if (!routingKey.hasMoreTokens()) {
+            return requestHandler;
         } else {
-            String childKey = routingKey.pop();
+            String childKey = routingKey.nextToken();
             RoutingNode childNode = getNode(childKey);
             if (childNode == null) {
-                handleNotFound(httpContext);
+                return null;
             } else {
                 if (childNode.isWildCardNode()) {
                     httpContext.putPathElement(childNode.getPathKey(), childKey);
                 }
-                childNode.handle(routingKey, httpContext);
+                return childNode.get(routingKey, httpContext);
             }
         }
     }
 
-    public void insert(RoutingKey routingKey, RequestHandler requestHandler) {
-        if (routingKey.isEmpty()) {
+    void insert(RoutingKey routingKey, RequestHandler requestHandler) {
+        if (!routingKey.hasMoreTokens()) {
             if (!isEndNode()) {
                 setEndNode(requestHandler);
             } else {
                 throw new RuntimeException("path already has end node");
             }
         } else {
-            String keyPart = routingKey.pop();
+            String keyPart = routingKey.nextToken();
             if (isPathElementKey(keyPart)) {
                 RoutingNode wildcardNode = getOrCreateChild("*");
                 wildcardNode.setWildcardNode(keyPart.substring(1, keyPart.length() - 1));
@@ -56,7 +54,7 @@ public class RoutingNode extends HashMap<String, RoutingNode> {
     }
 
     private void putNode(String key, RoutingNode childNode) {
-        if (hasWildcardNode()) {
+        if (isWildCardNode()) {
             throw new RuntimeException("path already has wildcard node");
         }
 
@@ -85,39 +83,25 @@ public class RoutingNode extends HashMap<String, RoutingNode> {
         return child;
     }
 
-    public void handleNotFound(CustomHttpContext httpContext) {
-        try (OutputStream output = httpContext.getExchange().getResponseBody()) {
-            String message = "[" + httpContext.getExchange().getRequestURI().getPath() + "] not found";
-            httpContext.getExchange().sendResponseHeaders(404, message.length());
-            output.write(message.getBytes());
-        } catch (IOException ex) {
-            throw new RuntimeException("except trying to respond to thing");
-        }
-    }
-
-    public boolean hasWildcardNode() {
-        return containsKey("*");
-    }
-
-    public void setWildcardNode(String key) {
+    private void setWildcardNode(String key) {
         this.pathKey = key;
         this.wildcardNode = true;
     }
 
-    public void setEndNode(RequestHandler requestHandler) {
+    private void setEndNode(RequestHandler requestHandler) {
         this.endNode = true;
         this.requestHandler = requestHandler;
     }
 
-    public boolean isWildCardNode() {
+    private boolean isWildCardNode() {
         return wildcardNode;
     }
 
-    public boolean isEndNode() {
+    private boolean isEndNode() {
         return endNode;
     }
 
-    public String getPathKey() {
+    private String getPathKey() {
         return this.pathKey;
     }
 

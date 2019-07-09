@@ -3,10 +3,7 @@ package id.renner.web.application.controller;
 import id.renner.web.application.service.TestService;
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
-import id.renner.web.library.http.CustomHttpContext;
-
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
+import id.renner.web.library.http.CustomHttpRequest;
 
 @Controller(path = "/test")
 public class TestController {
@@ -17,37 +14,18 @@ public class TestController {
     }
 
     @Endpoint(path = "/get")
-    public void test(CustomHttpContext httpContext) throws Exception {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpContext.getExchange().getResponseBody()))) {
-            String message = "abstraction is key - " + testService.getTimeString();
-
-            // send headers then body
-            httpContext.getExchange().sendResponseHeaders(200, message.length());
-            writer.append(message);
-        }
+    public void test(CustomHttpRequest httpContext) {
+        httpContext.sendResponse("abstraction is key - " + testService.getTimeString(), 200);
     }
 
     @Endpoint(path = "/echo/{message}")
-    public void echo(CustomHttpContext httpContext) throws Exception {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpContext.getExchange().getResponseBody()))) {
-            String message = httpContext.getPathElement("message");
-
-            // send headers then body
-            httpContext.getExchange().sendResponseHeaders(200, message.length());
-            writer.append(message);
-        }
+    public void echo(CustomHttpRequest httpContext) {
+        httpContext.sendResponse(httpContext.getPathElement("message"), 200);
     }
 
     @Endpoint(path = "/wait")
-    public void wait(CustomHttpContext httpContext) throws Exception {
+    public void wait(CustomHttpRequest httpContext) throws Exception {
         Thread.sleep(5000);
-
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(httpContext.getExchange().getResponseBody()))) {
-            String message = "returned";
-
-            // send headers then body
-            httpContext.getExchange().sendResponseHeaders(200, message.length());
-            writer.append(message);
-        }
+        httpContext.sendResponse("returned", 200);
     }
 }

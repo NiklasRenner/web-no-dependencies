@@ -2,6 +2,7 @@ package id.renner.web.library.http;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import id.renner.web.library.routing.RequestHandler;
 import id.renner.web.library.routing.RequestRouter;
 
 import java.io.IOException;
@@ -19,7 +20,15 @@ public class CustomHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         logger.info("handling request from [" + exchange.getRemoteAddress() + "]");
-        requestRouter.handle(exchange);
+
+        CustomHttpRequest httpContext = new CustomHttpRequest(exchange);
+        RequestHandler requestHandler = requestRouter.get(httpContext);
+        if (requestHandler == null) {
+            httpContext.sendResponse("[" + exchange.getRequestURI().getPath() + "] not found", 404);
+        } else {
+            requestHandler.invoke(httpContext);
+        }
+
         logger.info("finished handling request from [" + exchange.getRemoteAddress() + "]");
     }
 }
