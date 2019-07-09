@@ -1,4 +1,4 @@
-package id.renner.web.library.injection;
+package id.renner.web.library.application;
 
 
 import java.lang.annotation.ElementType;

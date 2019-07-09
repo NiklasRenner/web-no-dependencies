@@ -3,7 +3,8 @@ package id.renner.web.library.application;
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
 import id.renner.web.library.http.CustomHttpServer;
-import id.renner.web.library.http.InstanceMethod;
+import id.renner.web.library.routing.RequestHandler;
+import id.renner.web.library.routing.RequestRouter;
 import id.renner.web.library.util.AnnotationUtils;
 
 import java.lang.reflect.Method;
@@ -12,7 +13,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ControllerHandler {
@@ -25,15 +25,16 @@ public class ControllerHandler {
         logger.info("starting controllerHandler");
         this.port = port;
 
-        final Map<String, InstanceMethod> routes = contextHandler
+        final RequestRouter requestRouter = new RequestRouter();
+        contextHandler
                 .getInjectedObjectContext().values().stream()
                 .filter(this::isController)
-                .map(this::createRoutes)
+                .map(this::extractRouteMappings)
                 .flatMap(Function.identity())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .forEach((entry) -> requestRouter.addRoute(entry.getKey(), entry.getValue()));
 
-        if (!routes.isEmpty()) {
-            this.customHttpServer = new CustomHttpServer(routes, port);
+        if (!requestRouter.isEmpty()) {
+            this.customHttpServer = new CustomHttpServer(requestRouter, port);
             this.customHttpServer.start();
         }
     }
@@ -42,18 +43,18 @@ public class ControllerHandler {
         return AnnotationUtils.hasAnnotation(instance.getClass(), Controller.class);
     }
 
-    private Stream<Map.Entry<String, InstanceMethod>> createRoutes(Object controller) {
+    private Stream<Map.Entry<String, RequestHandler>> extractRouteMappings(Object controller) {
         Class controllerClass = controller.getClass();
         Controller controllerAnnotation = AnnotationUtils.getAnnotation(controllerClass, Controller.class);
 
         return Arrays.stream(controllerClass.getMethods())
                 .filter((Method method) -> AnnotationUtils.hasAnnotation(method, Endpoint.class))
-                .map((Method method) -> createBinding(controller, method, controllerAnnotation.path()));
+                .map((Method method) -> extractRouteMapping(controller, method, controllerAnnotation.path()));
     }
 
-    private Map.Entry<String, InstanceMethod> createBinding(Object instance, Method method, String prefix) {
+    private Map.Entry<String, RequestHandler> extractRouteMapping(Object instance, Method method, String prefix) {
         Endpoint endpointAnnotation = AnnotationUtils.getAnnotation(method, Endpoint.class);
-        return new AbstractMap.SimpleEntry<>(prefix + endpointAnnotation.path(), new InstanceMethod(instance, method));
+        return new AbstractMap.SimpleEntry<>(prefix + endpointAnnotation.path(), new RequestHandler(instance, method));
     }
 
     public void stop() {

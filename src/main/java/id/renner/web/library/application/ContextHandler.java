@@ -1,6 +1,5 @@
 package id.renner.web.library.application;
 
-import id.renner.web.library.injection.Application;
 import id.renner.web.library.injection.Inject;
 import id.renner.web.library.injection.InjectionException;
 import id.renner.web.library.util.AnnotationUtils;

@@ -1,8 +1,8 @@
 package id.renner.web.library.injection.sunshine;
 
+import id.renner.web.library.application.Application;
 import id.renner.web.library.application.ApplicationCore;
 import id.renner.web.library.application.ContextHandler;
-import id.renner.web.library.injection.Application;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
 

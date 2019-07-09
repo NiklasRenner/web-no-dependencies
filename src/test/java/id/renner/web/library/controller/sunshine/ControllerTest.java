@@ -1,7 +1,7 @@
 package id.renner.web.library.controller.sunshine;
 
+import id.renner.web.library.application.Application;
 import id.renner.web.library.application.ApplicationCore;
-import id.renner.web.library.injection.Application;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

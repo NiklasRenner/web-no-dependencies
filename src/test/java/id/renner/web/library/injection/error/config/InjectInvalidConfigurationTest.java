@@ -1,6 +1,6 @@
 package id.renner.web.library.injection.error.config;
 
-import id.renner.web.library.injection.Application;
+import id.renner.web.library.application.Application;
 import id.renner.web.library.injection.InjectionException;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
