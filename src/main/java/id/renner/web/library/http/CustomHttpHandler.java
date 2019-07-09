@@ -26,7 +26,11 @@ public class CustomHttpHandler implements HttpHandler {
         if (requestHandler == null) {
             request.sendResponse("[" + exchange.getRequestURI().getPath() + "] not found", 404);
         } else {
-            requestHandler.invoke(request);
+            try {
+                requestHandler.invoke(request);
+            } catch (Exception ex){
+                request.sendResponse(ex.toString(), 500);
+            }
         }
 
         logger.info("finished handling request from [" + exchange.getRemoteAddress() + "]");
