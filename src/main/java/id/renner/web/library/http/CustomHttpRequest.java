@@ -27,14 +27,14 @@ public class CustomHttpRequest {
     }
 
     private void init() {
-        String queries = exchange.getRequestURI().getQuery();
+        String rawQueryString = exchange.getRequestURI().getQuery();
 
-        if (queries != null) {
-            StringTokenizer queryTokens = new StringTokenizer(queries, "&");
-            while (queryTokens.hasMoreElements()) {
-                String queryToken = queryTokens.nextToken();
-                String[] queryTokenKeyValue = queryToken.split("=");
-                queryParameters.put(queryTokenKeyValue[0], queryTokenKeyValue[1]);
+        if (rawQueryString != null) {
+            StringTokenizer queryStrings = new StringTokenizer(rawQueryString, "&");
+            while (queryStrings.hasMoreElements()) {
+                String queryString = queryStrings.nextToken();
+                StringTokenizer queryPair = new StringTokenizer(queryString, "=");
+                queryParameters.put(queryPair.nextToken(), queryPair.nextToken());
             }
         }
     }
@@ -80,7 +80,7 @@ public class CustomHttpRequest {
             sendResponseHeaders(code, message.length());
             writer.append(message);
         } catch (IOException ex) {
-            throw new RuntimeException("failed when trying to respond to request");
+            throw new RuntimeException(ex);
         }
     }
 }
