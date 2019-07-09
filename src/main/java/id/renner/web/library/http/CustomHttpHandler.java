@@ -22,7 +22,7 @@ public class CustomHttpHandler implements HttpHandler {
         logger.info("handling request from [" + exchange.getRemoteAddress() + "]");
 
         CustomHttpRequest request = new CustomHttpRequest(exchange);
-        RequestHandler requestHandler = requestRouter.get(request);
+        RequestHandler requestHandler = requestRouter.findHandler(request);
         if (requestHandler == null) {
             request.sendResponse("[" + exchange.getRequestURI().getPath() + "] not found", 404);
         } else {

@@ -14,7 +14,7 @@ public class RequestRouter {
         rootNode.insert(routingKey, handler);
     }
 
-    public RequestHandler get(CustomHttpRequest request) {
+    public RequestHandler findHandler(CustomHttpRequest request) {
         RoutingKey routingKey = new RoutingKey(request.getMethod() + request.getPath());
         return rootNode.get(routingKey, request);
     }
