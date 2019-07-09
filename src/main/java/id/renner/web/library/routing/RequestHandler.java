@@ -37,7 +37,7 @@ public class RequestHandler {
                     throw new RuntimeException("unexpected parameter");
                 }
             } else {
-                Annotation parameterAnnotation = parameterAnnotations[0];
+                Annotation parameterAnnotation = parameterAnnotations[0]; // only handle first annotation for now, maybe expand later with more complex functionality if needed.
                 if (parameterAnnotation instanceof PathElement) {
                     String name = ((PathElement) parameterAnnotation).name();
                     converters.add((request) -> request.getPathElement(name));
