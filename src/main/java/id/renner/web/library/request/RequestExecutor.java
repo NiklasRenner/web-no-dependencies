@@ -8,6 +8,7 @@ import id.renner.web.library.http.HttpStatus;
 import id.renner.web.library.response.ResponseEntity;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,8 @@ public class RequestExecutor {
         try {
             Object responseHolder = method.invoke(object, buildParams(request));
             return responseConverter.convert(responseHolder);
+        } catch (InvocationTargetException ex) {
+            throw (RuntimeException) ex.getTargetException();
         } catch (ReflectiveOperationException ex) {
             throw new RuntimeException(ex);
         }
