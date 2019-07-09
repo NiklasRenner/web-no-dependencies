@@ -1,6 +1,7 @@
 package id.renner.web.library.routing;
 
-import id.renner.web.library.http.CustomHttpRequest;
+import id.renner.web.library.request.RequestExecutor;
+import id.renner.web.library.request.SimpleHttpRequest;
 
 public class RequestRouter {
     private final RoutingNode rootNode;
@@ -9,12 +10,12 @@ public class RequestRouter {
         this.rootNode = new RoutingNode();
     }
 
-    public void addRoute(String methodAndPathKey, RequestHandler handler) {
+    public void addRoute(String methodAndPathKey, RequestExecutor requestExecutor) {
         RoutingKey routingKey = new RoutingKey(methodAndPathKey);
-        rootNode.insert(routingKey, handler);
+        rootNode.insert(routingKey, requestExecutor);
     }
 
-    public RequestHandler findHandler(CustomHttpRequest request) {
+    public RequestExecutor findHandler(SimpleHttpRequest request) {
         RoutingKey routingKey = new RoutingKey(request.getMethod() + request.getPath());
         return rootNode.get(routingKey, request);
     }

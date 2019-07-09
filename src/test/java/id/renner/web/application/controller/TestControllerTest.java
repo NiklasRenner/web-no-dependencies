@@ -2,6 +2,7 @@ package id.renner.web.application.controller;
 
 import id.renner.web.application.WebApplication;
 import id.renner.web.library.application.ApplicationCore;
+import id.renner.web.library.http.HttpStatus;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ class TestControllerTest {
 
         HttpResponse httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(httpResponse.statusCode(), 200);
+        assertEquals(httpResponse.statusCode(), HttpStatus.OK.value());
         assertEquals(httpResponse.body().toString(), "message");
     }
 }

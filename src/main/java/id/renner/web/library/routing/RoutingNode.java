@@ -1,6 +1,7 @@
 package id.renner.web.library.routing;
 
-import id.renner.web.library.http.CustomHttpRequest;
+import id.renner.web.library.request.RequestExecutor;
+import id.renner.web.library.request.SimpleHttpRequest;
 
 import java.util.HashMap;
 
@@ -9,24 +10,24 @@ class RoutingNode extends HashMap<String, RoutingNode> {
     private static final String PATH_ELEMENT_START = "{";
     private static final String PATH_ELEMENT_END = "}";
 
-    private RequestHandler requestHandler;
+    private RequestExecutor requestExecutor;
     private String pathElementKey;
     private boolean pathElementNode;
 
     RoutingNode() {
         super(1);
-        this.requestHandler = null;
+        this.requestExecutor = null;
         this.pathElementKey = null;
         this.pathElementNode = false;
     }
 
-    void insert(RoutingKey routingKey, RequestHandler requestHandler) {
+    void insert(RoutingKey routingKey, RequestExecutor requestExecutor) {
         if (!routingKey.hasMoreTokens()) {
-            if (this.requestHandler != null) {
+            if (this.requestExecutor != null) {
                 throw new RoutingException("can't have multiple request handlers for one path mapping");
             }
 
-            this.requestHandler = requestHandler;
+            this.requestExecutor = requestExecutor;
             return;
         }
 
@@ -46,7 +47,7 @@ class RoutingNode extends HashMap<String, RoutingNode> {
             }
         }
 
-        child.insert(routingKey, requestHandler);
+        child.insert(routingKey, requestExecutor);
     }
 
     private RoutingNode getOrCreateChild(String key) {
@@ -60,9 +61,9 @@ class RoutingNode extends HashMap<String, RoutingNode> {
         return child;
     }
 
-    RequestHandler get(RoutingKey routingKey, CustomHttpRequest request) {
+    RequestExecutor get(RoutingKey routingKey, SimpleHttpRequest request) {
         if (!routingKey.hasMoreTokens()) {
-            return requestHandler;
+            return requestExecutor;
         }
 
         String childKey = routingKey.nextToken();

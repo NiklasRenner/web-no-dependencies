@@ -2,7 +2,8 @@ package id.renner.web.library.controller.sunshine;
 
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
-import id.renner.web.library.http.CustomHttpRequest;
+import id.renner.web.library.http.HttpStatus;
+import id.renner.web.library.response.ResponseEntity;
 
 @Controller(path = "/foo")
 public class FooController {
@@ -13,7 +14,7 @@ public class FooController {
     }
 
     @Endpoint(path = "/bar")
-    public void bar(CustomHttpRequest request) {
-        request.sendResponse(foo.foo(), 200);
+    public ResponseEntity bar() {
+        return ResponseEntity.of(foo.foo(), HttpStatus.OK);
     }
 }

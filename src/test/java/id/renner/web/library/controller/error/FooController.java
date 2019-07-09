@@ -2,8 +2,8 @@ package id.renner.web.library.controller.error;
 
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
+import id.renner.web.library.controller.PathElement;
 import id.renner.web.library.controller.sunshine.Foo;
-import id.renner.web.library.http.CustomHttpRequest;
 
 @Controller(path = "/foo")
 public class FooController {
@@ -14,10 +14,10 @@ public class FooController {
     }
 
     @Endpoint(path = "/bar/{id}")
-    public void bar(CustomHttpRequest request) {
+    public void bar(@PathElement(name = "id") String id) {
     }
 
     @Endpoint(path = "/bar/baz")
-    public void baz(CustomHttpRequest request){
+    public void baz() {
     }
 }

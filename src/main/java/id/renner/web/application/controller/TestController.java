@@ -6,8 +6,9 @@ import id.renner.web.library.controller.Endpoint;
 import id.renner.web.library.controller.PathElement;
 import id.renner.web.library.controller.QueryParameter;
 import id.renner.web.library.controller.RequestBody;
-import id.renner.web.library.http.CustomHttpRequest;
 import id.renner.web.library.http.HttpMethod;
+import id.renner.web.library.http.HttpStatus;
+import id.renner.web.library.response.ResponseEntity;
 
 @Controller(path = "/test")
 public class TestController {
@@ -18,27 +19,27 @@ public class TestController {
     }
 
     @Endpoint(path = "/get")
-    public void test(CustomHttpRequest request) {
-        request.sendResponse("abstraction is key - " + testService.getTimeString(), 200);
+    public ResponseEntity test() {
+        return ResponseEntity.of("abstraction is key - " + testService.getTimeString(), HttpStatus.OK);
     }
 
     @Endpoint(path = "/echo/{message}")
-    public void echo(CustomHttpRequest request, @PathElement(name = "message") String message, @QueryParameter(name = "times", defaultValue = "1") String times) {
-        request.sendResponse(message.repeat(Integer.parseInt(times)), 200);
+    public ResponseEntity echo(@PathElement(name = "message") String message, @QueryParameter(name = "times", defaultValue = "1") String times) {
+        return ResponseEntity.of(message.repeat(Integer.parseInt(times)), HttpStatus.OK);
     }
 
     @Endpoint(path = "/echo", method = HttpMethod.POST)
-    public void echoPost(CustomHttpRequest request, @RequestBody String body) {
-        request.sendResponse(body, 200);
+    public ResponseEntity echoPost(@RequestBody String body) {
+        return ResponseEntity.of(body, HttpStatus.OK);
     }
 
     @Endpoint(path = "/methods", method = HttpMethod.PUT)
-    public void put(CustomHttpRequest request) {
-        request.sendResponse("put", 200);
+    public ResponseEntity put() {
+        return ResponseEntity.of("put", HttpStatus.OK);
     }
 
     @Endpoint(path = "/methods")
-    public void get(CustomHttpRequest request) {
-        request.sendResponse("get", 200);
+    public ResponseEntity get() {
+        return ResponseEntity.of("get", HttpStatus.OK);
     }
 }

@@ -1,6 +1,7 @@
-package id.renner.web.library.http;
+package id.renner.web.library.request;
 
 import com.sun.net.httpserver.HttpExchange;
+import id.renner.web.library.http.HttpStatus;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,13 +14,13 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-public class CustomHttpRequest {
+public class SimpleHttpRequest {
     private final HttpExchange exchange;
     private final Map<String, String> pathElements;
     private final Map<String, String> queryParameters;
 
-    public CustomHttpRequest(HttpExchange httpExchange) {
-        this.exchange = httpExchange;
+    public SimpleHttpRequest(HttpExchange exchange) {
+        this.exchange = exchange;
         this.pathElements = new HashMap<>();
         this.queryParameters = new HashMap<>();
 
@@ -75,9 +76,9 @@ public class CustomHttpRequest {
         exchange.sendResponseHeaders(code, messageLength);
     }
 
-    public void sendResponse(String message, int code) {
+    public void sendResponse(String message, HttpStatus code) {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getOutputStream()))) {
-            sendResponseHeaders(code, message.length());
+            sendResponseHeaders(code.value(), message.length());
             writer.append(message);
         } catch (IOException ex) {
             throw new RuntimeException(ex);

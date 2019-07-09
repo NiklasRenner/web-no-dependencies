@@ -2,8 +2,8 @@ package id.renner.web.library.application;
 
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
-import id.renner.web.library.http.CustomHttpServer;
-import id.renner.web.library.routing.RequestHandler;
+import id.renner.web.library.http.HttpRoutingServer;
+import id.renner.web.library.request.RequestExecutor;
 import id.renner.web.library.routing.RequestRouter;
 import id.renner.web.library.util.AnnotationUtils;
 
@@ -19,7 +19,7 @@ public class ControllerHandler {
     private static final Logger logger = Logger.getLogger(ControllerHandler.class.getSimpleName());
 
     private final int port;
-    private CustomHttpServer customHttpServer;
+    private HttpRoutingServer httpRoutingServer;
 
     public ControllerHandler(ContextHandler contextHandler, int port) {
         logger.info("starting controllerHandler");
@@ -34,8 +34,8 @@ public class ControllerHandler {
                 .forEach((entry) -> requestRouter.addRoute(entry.getKey(), entry.getValue()));
 
         if (!requestRouter.isEmpty()) {
-            this.customHttpServer = new CustomHttpServer(requestRouter, port);
-            this.customHttpServer.start();
+            this.httpRoutingServer = new HttpRoutingServer(requestRouter, port);
+            this.httpRoutingServer.start();
         }
     }
 
@@ -43,7 +43,7 @@ public class ControllerHandler {
         return AnnotationUtils.hasAnnotation(instance.getClass(), Controller.class);
     }
 
-    private Stream<Map.Entry<String, RequestHandler>> extractRouteMappings(Object controller) {
+    private Stream<Map.Entry<String, RequestExecutor>> extractRouteMappings(Object controller) {
         Class controllerClass = controller.getClass();
         Controller controllerAnnotation = AnnotationUtils.getAnnotation(controllerClass, Controller.class);
 
@@ -52,15 +52,15 @@ public class ControllerHandler {
                 .map((Method method) -> extractRouteMapping(controller, method, controllerAnnotation.path()));
     }
 
-    private Map.Entry<String, RequestHandler> extractRouteMapping(Object instance, Method method, String prefix) {
+    private Map.Entry<String, RequestExecutor> extractRouteMapping(Object instance, Method method, String prefix) {
         Endpoint endpointAnnotation = AnnotationUtils.getAnnotation(method, Endpoint.class);
         String methodAndPathKey = endpointAnnotation.method().name() + prefix + endpointAnnotation.path();
-        return new AbstractMap.SimpleEntry<>(methodAndPathKey, new RequestHandler(instance, method));
+        return new AbstractMap.SimpleEntry<>(methodAndPathKey, new RequestExecutor(instance, method));
     }
 
     public void stop() {
-        if (customHttpServer != null) {
-            customHttpServer.stop();
+        if (httpRoutingServer != null) {
+            httpRoutingServer.stop();
         }
     }
 
