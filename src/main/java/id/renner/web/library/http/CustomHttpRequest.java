@@ -12,13 +12,10 @@ import java.util.Map;
 public class CustomHttpRequest {
     private final HttpExchange exchange;
     private final Map<String, String> pathElements;
-    private final String path;
-
 
     public CustomHttpRequest(HttpExchange httpExchange) {
         this.exchange = httpExchange;
         this.pathElements = new HashMap<>();
-        this.path = httpExchange.getRequestURI().getPath();
     }
 
     public void putPathElement(String key, String value) {
@@ -30,7 +27,11 @@ public class CustomHttpRequest {
     }
 
     public String getPath() {
-        return path;
+        return exchange.getRequestURI().getPath();
+    }
+
+    public String getMethod() {
+        return exchange.getRequestMethod();
     }
 
     private OutputStream getOutputStream() {

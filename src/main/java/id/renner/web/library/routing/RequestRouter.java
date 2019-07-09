@@ -9,13 +9,13 @@ public class RequestRouter {
         this.rootNode = new RoutingNode();
     }
 
-    public void addRoute(String path, RequestHandler handler) {
-        RoutingKey routingKey = new RoutingKey(path);
+    public void addRoute(String methodAndPathKey, RequestHandler handler) {
+        RoutingKey routingKey = new RoutingKey(methodAndPathKey);
         rootNode.insert(routingKey, handler);
     }
 
     public RequestHandler get(CustomHttpRequest request) {
-        RoutingKey routingKey = new RoutingKey(request.getPath());
+        RoutingKey routingKey = new RoutingKey(request.getMethod() + request.getPath());
         return rootNode.get(routingKey, request);
     }
 

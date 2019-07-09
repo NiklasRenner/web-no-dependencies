@@ -54,7 +54,8 @@ public class ControllerHandler {
 
     private Map.Entry<String, RequestHandler> extractRouteMapping(Object instance, Method method, String prefix) {
         Endpoint endpointAnnotation = AnnotationUtils.getAnnotation(method, Endpoint.class);
-        return new AbstractMap.SimpleEntry<>(prefix + endpointAnnotation.path(), new RequestHandler(instance, method));
+        String methodAndPathKey = endpointAnnotation.method().name() + prefix + endpointAnnotation.path();
+        return new AbstractMap.SimpleEntry<>(methodAndPathKey, new RequestHandler(instance, method));
     }
 
     public void stop() {

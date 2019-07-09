@@ -4,6 +4,7 @@ import id.renner.web.application.service.TestService;
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
 import id.renner.web.library.http.CustomHttpRequest;
+import id.renner.web.library.http.HttpMethod;
 
 @Controller(path = "/test")
 public class TestController {
@@ -23,9 +24,13 @@ public class TestController {
         request.sendResponse(request.getPathElement("message"), 200);
     }
 
-    @Endpoint(path = "/wait")
-    public void wait(CustomHttpRequest request) throws Exception {
-        Thread.sleep(5000);
-        request.sendResponse("returned", 200);
+    @Endpoint(path = "/methods", method = HttpMethod.PUT)
+    public void put(CustomHttpRequest request) {
+        request.sendResponse("put", 200);
+    }
+
+    @Endpoint(path = "/methods")
+    public void get(CustomHttpRequest request) {
+        request.sendResponse("get", 200);
     }
 }
