@@ -76,8 +76,8 @@ public class RequestExecutor {
 
     public ResponseEntity invoke(SimpleHttpRequest request) {
         try {
-            Object responseHolder = method.invoke(object, buildParams(request));
-            return responseConverter.convert(responseHolder);
+            Object responseEntity = method.invoke(object, buildParams(request));
+            return responseConverter.convert(responseEntity);
         } catch (InvocationTargetException ex) {
             throw (RuntimeException) ex.getTargetException();
         } catch (ReflectiveOperationException ex) {
