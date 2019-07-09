@@ -17,7 +17,7 @@ class RoutingNode extends HashMap<String, RoutingNode> {
         this.wildcardNode = false;
     }
 
-    RequestHandler get(RoutingKey routingKey, CustomHttpRequest httpContext) {
+    RequestHandler get(RoutingKey routingKey, CustomHttpRequest request) {
         if (!routingKey.hasMoreTokens()) {
             return requestHandler;
         } else {
@@ -27,9 +27,9 @@ class RoutingNode extends HashMap<String, RoutingNode> {
                 return null;
             } else {
                 if (childNode.isWildCardNode()) {
-                    httpContext.putPathElement(childNode.getPathKey(), childKey);
+                    request.putPathElement(childNode.getPathKey(), childKey);
                 }
-                return childNode.get(routingKey, httpContext);
+                return childNode.get(routingKey, request);
             }
         }
     }

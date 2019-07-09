@@ -14,10 +14,10 @@ public class FooController {
     }
 
     @Endpoint(path = "/bar/{id}")
-    public void bar(CustomHttpRequest httpContext) {
+    public void bar(CustomHttpRequest request) {
     }
 
     @Endpoint(path = "/bar/baz")
-    public void baz(CustomHttpRequest httpContext){
+    public void baz(CustomHttpRequest request){
     }
 }

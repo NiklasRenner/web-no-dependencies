@@ -13,7 +13,7 @@ public class FooController {
     }
 
     @Endpoint(path = "/bar")
-    public void bar(CustomHttpRequest httpContext) {
-        httpContext.sendResponse(foo.foo(), 200);
+    public void bar(CustomHttpRequest request) {
+        request.sendResponse(foo.foo(), 200);
     }
 }

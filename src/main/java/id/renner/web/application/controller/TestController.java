@@ -14,18 +14,18 @@ public class TestController {
     }
 
     @Endpoint(path = "/get")
-    public void test(CustomHttpRequest httpContext) {
-        httpContext.sendResponse("abstraction is key - " + testService.getTimeString(), 200);
+    public void test(CustomHttpRequest request) {
+        request.sendResponse("abstraction is key - " + testService.getTimeString(), 200);
     }
 
     @Endpoint(path = "/echo/{message}")
-    public void echo(CustomHttpRequest httpContext) {
-        httpContext.sendResponse(httpContext.getPathElement("message"), 200);
+    public void echo(CustomHttpRequest request) {
+        request.sendResponse(request.getPathElement("message"), 200);
     }
 
     @Endpoint(path = "/wait")
-    public void wait(CustomHttpRequest httpContext) throws Exception {
+    public void wait(CustomHttpRequest request) throws Exception {
         Thread.sleep(5000);
-        httpContext.sendResponse("returned", 200);
+        request.sendResponse("returned", 200);
     }
 }

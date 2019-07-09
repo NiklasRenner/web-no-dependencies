@@ -14,9 +14,9 @@ public class RequestRouter {
         rootNode.insert(routingKey, handler);
     }
 
-    public RequestHandler get(CustomHttpRequest httpContext) {
-        RoutingKey routingKey = new RoutingKey(httpContext.getPath());
-        return rootNode.get(routingKey, httpContext);
+    public RequestHandler get(CustomHttpRequest request) {
+        RoutingKey routingKey = new RoutingKey(request.getPath());
+        return rootNode.get(routingKey, request);
     }
 
     public boolean isEmpty() {

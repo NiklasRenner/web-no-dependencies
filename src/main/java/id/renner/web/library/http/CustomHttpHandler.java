@@ -21,12 +21,12 @@ public class CustomHttpHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         logger.info("handling request from [" + exchange.getRemoteAddress() + "]");
 
-        CustomHttpRequest httpContext = new CustomHttpRequest(exchange);
-        RequestHandler requestHandler = requestRouter.get(httpContext);
+        CustomHttpRequest request = new CustomHttpRequest(exchange);
+        RequestHandler requestHandler = requestRouter.get(request);
         if (requestHandler == null) {
-            httpContext.sendResponse("[" + exchange.getRequestURI().getPath() + "] not found", 404);
+            request.sendResponse("[" + exchange.getRequestURI().getPath() + "] not found", 404);
         } else {
-            requestHandler.invoke(httpContext);
+            requestHandler.invoke(request);
         }
 
         logger.info("finished handling request from [" + exchange.getRemoteAddress() + "]");
