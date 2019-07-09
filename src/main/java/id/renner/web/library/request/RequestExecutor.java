@@ -16,13 +16,13 @@ import java.util.List;
 public class RequestExecutor {
     private final Object object;
     private final Method method;
-    private final List<ParameterConverter> parameterParameterConverters;
+    private final List<ParameterConverter> parameterConverters;
     private ResponseConverter responseConverter;
 
     public RequestExecutor(Object object, Method method) {
         this.object = object;
         this.method = method;
-        this.parameterParameterConverters = new ArrayList<>();
+        this.parameterConverters = new ArrayList<>();
 
         init();
     }
@@ -34,7 +34,7 @@ public class RequestExecutor {
             Annotation[] parameterAnnotations = method.getParameterAnnotations()[i];
             if (parameterAnnotations.length == 0) {
                 if (parameterClass == SimpleHttpRequest.class) {
-                    parameterParameterConverters.add((request -> request));
+                    parameterConverters.add((request -> request));
                 } else {
                     throw new ControllerMappingException("unexpected parameter-type [" + parameterClass.getSimpleName() + "] for controller method");
                 }
@@ -42,12 +42,12 @@ public class RequestExecutor {
                 Annotation parameterAnnotation = parameterAnnotations[0]; // only handle first annotation for now, maybe expand later with more complex functionality if needed.
                 if (parameterAnnotation instanceof PathElement) {
                     String name = ((PathElement) parameterAnnotation).name();
-                    parameterParameterConverters.add((request) -> request.getPathElement(name));
+                    parameterConverters.add((request) -> request.getPathElement(name));
                 } else if (parameterAnnotation instanceof QueryParameter) {
                     QueryParameter queryParameter = ((QueryParameter) parameterAnnotation);
-                    parameterParameterConverters.add((request) -> request.getQueryParameterOrDefault(queryParameter.name(), queryParameter.defaultValue()));
+                    parameterConverters.add((request) -> request.getQueryParameterOrDefault(queryParameter.name(), queryParameter.defaultValue()));
                 } else if (parameterAnnotation instanceof RequestBody) {
-                    parameterParameterConverters.add(SimpleHttpRequest::getBody);
+                    parameterConverters.add(SimpleHttpRequest::getBody);
                 } else {
                     throw new ControllerMappingException("unexpected parameter-type [" + parameterClass.getSimpleName() + "] for controller method");
                 }
@@ -65,10 +65,10 @@ public class RequestExecutor {
     }
 
     private Object[] buildParams(SimpleHttpRequest request) {
-        Object[] params = new Object[parameterParameterConverters.size()];
+        Object[] params = new Object[parameterConverters.size()];
 
-        for (int i = 0; i < parameterParameterConverters.size(); i++) {
-            params[i] = parameterParameterConverters.get(i).convert(request);
+        for (int i = 0; i < parameterConverters.size(); i++) {
+            params[i] = parameterConverters.get(i).convert(request);
         }
 
         return params;
