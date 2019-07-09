@@ -27,13 +27,16 @@ public class HttpRequestHandler implements HttpHandler {
         RequestExecutor requestExecutor = requestRouter.findHandler(request);
         if (requestExecutor == null) {
             handleNotFound(request);
-        } else {
-            try {
-                ResponseEntity responseEntity = requestExecutor.invoke(request);
+            return;
+        }
+
+        try {
+            ResponseEntity responseEntity = requestExecutor.invoke(request);
+            if (!request.hasResponded()) { // safeguard, since you can have a void method, where the request is injected into the handler method, and manually responded to.
                 request.sendResponse(responseEntity.getResponse(), responseEntity.getResponseCode());
-            } catch (Exception ex) {
-                handleInternalError(request, ex);
             }
+        } catch (Exception ex) {
+            handleInternalError(request, ex);
         }
 
         logger.info("finished handling request from [" + exchange.getRemoteAddress() + "]");

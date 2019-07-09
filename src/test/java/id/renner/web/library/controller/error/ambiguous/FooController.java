@@ -1,4 +1,4 @@
-package id.renner.web.library.controller.error;
+package id.renner.web.library.controller.error.ambiguous;
 
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;

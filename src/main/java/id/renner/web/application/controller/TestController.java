@@ -32,14 +32,4 @@ public class TestController {
     public ResponseEntity echoPost(@RequestBody String body) {
         return ResponseEntity.of(body, HttpStatus.OK);
     }
-
-    @Endpoint(path = "/methods", method = HttpMethod.PUT)
-    public ResponseEntity put() {
-        return ResponseEntity.of("put", HttpStatus.OK);
-    }
-
-    @Endpoint(path = "/methods")
-    public ResponseEntity get() {
-        return ResponseEntity.of("get", HttpStatus.OK);
-    }
 }

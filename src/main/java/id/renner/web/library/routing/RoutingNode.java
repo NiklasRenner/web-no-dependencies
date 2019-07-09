@@ -1,5 +1,6 @@
 package id.renner.web.library.routing;
 
+import id.renner.web.library.controller.ControllerMappingException;
 import id.renner.web.library.request.RequestExecutor;
 import id.renner.web.library.request.SimpleHttpRequest;
 
@@ -24,7 +25,7 @@ class RoutingNode extends HashMap<String, RoutingNode> {
     void insert(RoutingKey routingKey, RequestExecutor requestExecutor) {
         if (!routingKey.hasMoreTokens()) {
             if (this.requestExecutor != null) {
-                throw new RoutingException("can't have multiple request handlers for one path mapping");
+                throw new ControllerMappingException("can't have multiple request handlers for one path mapping");
             }
 
             this.requestExecutor = requestExecutor;
@@ -36,14 +37,14 @@ class RoutingNode extends HashMap<String, RoutingNode> {
 
         if (isPathElementKey(keyPart)) {
             if (!isEmpty()) {
-                throw new RoutingException("can´t have method with path element and fixed path on same level");
+                throw new ControllerMappingException("can´t have method with path element and fixed path on same level");
             }
             child = getOrCreateChild(PATH_ELEMENT_ROUTING_KEY);
             child.setPathElementNode(keyPart);
         } else {
             child = getOrCreateChild(keyPart);
             if (child.isPathElementNode()) {
-                throw new RoutingException("can´t have method with path element and fixed path on same level");
+                throw new ControllerMappingException("can´t have method with path element and fixed path on same level");
             }
         }
 

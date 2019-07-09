@@ -1,7 +1,7 @@
-package id.renner.web.library.controller.error;
+package id.renner.web.library.controller.error.ambiguous;
 
 import id.renner.web.library.application.Application;
-import id.renner.web.library.routing.RoutingException;
+import id.renner.web.library.controller.ControllerMappingException;
 import id.renner.web.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +12,6 @@ class AmbiguousRouteMappingTest {
 
     @Test
     void testAmbiguousRouteMappingFails() {
-        assertThrows(RoutingException.class, () -> TestUtil.createApplicationCore(AmbiguousRouteMappingTest.class));
+        assertThrows(ControllerMappingException.class, () -> TestUtil.createApplicationCore(AmbiguousRouteMappingTest.class));
     }
 }

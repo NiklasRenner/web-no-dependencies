@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +18,14 @@ public class SimpleHttpRequest {
     private final Map<String, String> pathElements;
     private final Map<String, String> queryParameters;
 
+    private boolean hasResponded;
+
     public SimpleHttpRequest(HttpExchange exchange) {
         this.exchange = exchange;
         this.pathElements = new HashMap<>();
         this.queryParameters = new HashMap<>();
+
+        this.hasResponded = false;
 
         init();
     }
@@ -68,18 +71,19 @@ public class SimpleHttpRequest {
         }
     }
 
-    private OutputStream getOutputStream() {
-        return exchange.getResponseBody();
+    public boolean hasResponded() {
+        return hasResponded;
     }
 
-    private void sendResponseHeaders(int code, int messageLength) throws IOException {
-        exchange.sendResponseHeaders(code, messageLength);
-    }
+    public void sendResponse(String message, HttpStatus status) {
+        if (hasResponded) {
+            throw new IllegalStateException("can't respond to same request twice");
+        }
 
-    public void sendResponse(String message, HttpStatus code) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(getOutputStream()))) {
-            sendResponseHeaders(code.value(), message.length());
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(exchange.getResponseBody()))) {
+            exchange.sendResponseHeaders(status.value(), message.length());
             writer.append(message);
+            hasResponded = true;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
