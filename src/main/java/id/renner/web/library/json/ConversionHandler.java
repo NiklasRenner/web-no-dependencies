@@ -6,12 +6,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//TODO
+// maybe split into two pieces of functionality
+// 1. conversions of query params and path element strings to other primitives
+// 2. conversion of object to and from json (used for @RequestBody and return values)
+// this is because as it is sub converters will resolve to strings, and its hard to do proper json formatting with a lot of json string fragments
+// alternative is doing it as now, but if pretty printing is needed for json, it needs to be post processed instead of doing it while building the string.
+// for the json only conversions, converters need jsonwriter as input as write their own elements, such that the jsonwriter can keep track of where in the json it is.
 public class ConversionHandler {
+    private final boolean prettyPrint;
+    private final List<Class> primitives;
+
     private Map<ConversionKey, Converter> converters;
-    private boolean prettyPrint;
 
     public ConversionHandler(boolean prettyPrint) {
         this.prettyPrint = prettyPrint;
+        this.primitives = List.of(String.class, Boolean.class, boolean.class, Integer.class, int.class, Long.class, long.class);
+
         this.converters = new HashMap<>();
 
         this.converters.put(new ConversionKey(String.class, Boolean.class), (Converter<String, Boolean>) Boolean::parseBoolean);
@@ -79,7 +90,11 @@ public class ConversionHandler {
                 try {
                     Object result = binding.getMiddle().invoke(input); // call get method
                     if (result != null) { // if property isnt set, skip it
-                        jsonWriter.putProperty(binding.getLeft(), (String) binding.getRight().convert(result)); //TODO need to check type, since it matters
+                        if (primitives.contains(result.getClass())) {
+                            jsonWriter.putProperty(binding.getLeft(), (String) binding.getRight().convert(result));
+                        } else {
+                            jsonWriter.putObjectProperty(binding.getLeft(), (String) binding.getRight().convert(result));
+                        }
                     }
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);

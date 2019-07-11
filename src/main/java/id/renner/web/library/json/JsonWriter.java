@@ -16,10 +16,10 @@ public class JsonWriter {
     }
 
     public void startElement() {
-        if (!elementStateStack.empty()) {
+        if (elementStateStack.size() > 1) {
             handlePropertySeparation();
+            handlePrettyPrint();
         }
-        handlePrettyPrint();
         nextLevel();
         builder.append('{');
     }
@@ -72,7 +72,7 @@ public class JsonWriter {
         }
     }
 
-    private void putObjectProperty(String key, String value){
+    public void putObjectProperty(String key, String value) {
         handlePropertySeparation();
         handlePrettyPrint();
 
@@ -83,10 +83,7 @@ public class JsonWriter {
         if (prettyPrint) {
             builder.append(' ');
         }
-
-        builder.append('\"')
-                .append(value)
-                .append('\"');
+        builder.append(value);
     }
 
     private void nextLevel() {
