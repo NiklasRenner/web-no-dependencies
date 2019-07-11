@@ -3,6 +3,7 @@ package id.renner.web.library.application;
 import id.renner.web.library.controller.Controller;
 import id.renner.web.library.controller.Endpoint;
 import id.renner.web.library.http.HttpRoutingServer;
+import id.renner.web.library.json.ConversionHandler;
 import id.renner.web.library.request.RequestExecutor;
 import id.renner.web.library.routing.RequestRouter;
 import id.renner.web.library.util.AnnotationUtils;
@@ -20,6 +21,7 @@ public class ControllerHandler {
 
     private final int port;
     private HttpRoutingServer httpRoutingServer;
+    private ConversionHandler conversionHandler = new ConversionHandler(true);
 
     public ControllerHandler(ContextHandler contextHandler, int port) {
         logger.info("starting controllerHandler");

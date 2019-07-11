@@ -8,25 +8,25 @@ import java.util.Map;
 
 public class ConversionHandler {
     private Map<ConversionKey, Converter> converters;
-    private JsonWriter jsonWriter;
+    private boolean prettyPrint;
 
-    public ConversionHandler() {
-        this.jsonWriter = new JsonWriter(true);
+    public ConversionHandler(boolean prettyPrint) {
+        this.prettyPrint = prettyPrint;
         this.converters = new HashMap<>();
 
-        this.converters.put(new ConversionKey(String.class, Boolean.class), (Converter<String, Boolean>) (input, context) -> Boolean.parseBoolean(input));
-        this.converters.put(new ConversionKey(String.class, boolean.class), (Converter<String, Boolean>) (input, context) -> Boolean.parseBoolean(input));
-        this.converters.put(new ConversionKey(String.class, Integer.class), (Converter<String, Integer>) (input, context) -> Integer.parseInt(input));
-        this.converters.put(new ConversionKey(String.class, int.class), (Converter<String, Integer>) (input, context) -> Integer.parseInt(input));
-        this.converters.put(new ConversionKey(String.class, Long.class), (Converter<String, Long>) (input, context) -> Long.parseLong(input));
-        this.converters.put(new ConversionKey(String.class, long.class), (Converter<String, Long>) (input, context) -> Long.parseLong(input));
+        this.converters.put(new ConversionKey(String.class, Boolean.class), (Converter<String, Boolean>) Boolean::parseBoolean);
+        this.converters.put(new ConversionKey(String.class, boolean.class), (Converter<String, Boolean>) Boolean::parseBoolean);
+        this.converters.put(new ConversionKey(String.class, Integer.class), (Converter<String, Integer>) Integer::parseInt);
+        this.converters.put(new ConversionKey(String.class, int.class), (Converter<String, Integer>) Integer::parseInt);
+        this.converters.put(new ConversionKey(String.class, Long.class), (Converter<String, Long>) Long::parseLong);
+        this.converters.put(new ConversionKey(String.class, long.class), (Converter<String, Long>) Long::parseLong);
 
-        this.converters.put(new ConversionKey(Boolean.class, String.class), (Converter<Boolean, String>) (input, context) -> Boolean.toString(input));
-        this.converters.put(new ConversionKey(boolean.class, String.class), (Converter<Boolean, String>) (input, context) -> Boolean.toString(input));
-        this.converters.put(new ConversionKey(Integer.class, String.class), (Converter<Integer, String>) (input, context) -> Integer.toString(input));
-        this.converters.put(new ConversionKey(int.class, String.class), (Converter<Integer, String>) (input, context) -> Integer.toString(input));
-        this.converters.put(new ConversionKey(Long.class, String.class), (Converter<Long, String>) (input, context) -> Long.toString(input));
-        this.converters.put(new ConversionKey(long.class, String.class), (Converter<Long, String>) (input, context) -> Long.toString(input));
+        this.converters.put(new ConversionKey(Boolean.class, String.class), (Converter<Boolean, String>) (input) -> Boolean.toString(input));
+        this.converters.put(new ConversionKey(boolean.class, String.class), (Converter<Boolean, String>) (input) -> Boolean.toString(input));
+        this.converters.put(new ConversionKey(Integer.class, String.class), (Converter<Integer, String>) (input) -> Integer.toString(input));
+        this.converters.put(new ConversionKey(int.class, String.class), (Converter<Integer, String>) (input) -> Integer.toString(input));
+        this.converters.put(new ConversionKey(Long.class, String.class), (Converter<Long, String>) (input) -> Long.toString(input));
+        this.converters.put(new ConversionKey(long.class, String.class), (Converter<Long, String>) (input) -> Long.toString(input));
     }
 
     public Converter createIfMissingAndGet(Class inputClass, Class outputClass) {
@@ -35,7 +35,7 @@ public class ConversionHandler {
         }
 
         if (inputClass == outputClass) {
-            return (input, context) -> input;
+            return (input) -> input;
         }
 
         ConversionKey conversionKey = new ConversionKey(inputClass, outputClass);
@@ -59,32 +59,27 @@ public class ConversionHandler {
 
     private Converter createClassToStringConverter(Class clazz) {
         Method[] methods = clazz.getMethods();
-        List<Pair<String, Method>> bindings = new ArrayList<>();
+        List<Triple<String, Method, Converter>> conversionBindings = new ArrayList<>();
         for (Method method : methods) {
             String name = method.getName();
             if (name.startsWith("get")) {
                 String propertyName = name.substring(3).toLowerCase();
                 if (!propertyName.equals("class")) {
-                    bindings.add(Pair.of(propertyName, method));
+                    Converter converter = createIfMissingAndGet(method.getReturnType(), String.class);
+                    conversionBindings.add(Triple.of(propertyName, method, converter));
                 }
             }
         }
 
-        List<Triple<String, Method, Converter>> conversionBindings = new ArrayList<>();
-        bindings.forEach((binding) -> {
-            Converter converter = createIfMissingAndGet(binding.getRight().getReturnType(), String.class);
-            conversionBindings.add(Triple.of(binding.getLeft(), binding.getRight(), converter));
-        });
-
-        return (input, context) -> {
-            JsonWriter jsonWriter = new JsonWriter(true);
+        return (input) -> {
+            JsonWriter jsonWriter = new JsonWriter(prettyPrint);
 
             jsonWriter.startElement();
             conversionBindings.forEach((binding) -> {
                 try {
-                    Object result = binding.getMiddle().invoke(input);
+                    Object result = binding.getMiddle().invoke(input); // call get method
                     if (result != null) { // if property isnt set, skip it
-                        jsonWriter.putProperty(binding.getLeft(), (String) binding.getRight().convert(result, context));
+                        jsonWriter.putProperty(binding.getLeft(), (String) binding.getRight().convert(result)); //TODO need to check type, since it matters
                     }
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
@@ -107,6 +102,6 @@ public class ConversionHandler {
             throw new RuntimeException("no converter found for class [" + object.getClass().getSimpleName() + "]");
         }
 
-        return (T) converter.convert(object, converters);
+        return (T) converter.convert(object);
     }
 }

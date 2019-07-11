@@ -72,6 +72,23 @@ public class JsonWriter {
         }
     }
 
+    private void putObjectProperty(String key, String value){
+        handlePropertySeparation();
+        handlePrettyPrint();
+
+        builder.append('\"')
+                .append(key)
+                .append("\":");
+
+        if (prettyPrint) {
+            builder.append(' ');
+        }
+
+        builder.append('\"')
+                .append(value)
+                .append('\"');
+    }
+
     private void nextLevel() {
         elementStateStack.push(new ElementState());
     }
